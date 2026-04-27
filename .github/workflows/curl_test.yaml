@@ -1,1 +1,55 @@
+name: Build-Curl
+# tells github which repository events should trigger this workflow
+on:
+  workflow_dispatch
+permissions: {}
+# the code that will run in the cloud
+jobs:
+  build-and-curl:
+    runs-on: ubuntu-latest
+    steps:
+    - name: get-code
+      # uses tag runs a premade action from github marketplace
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+    - name: docker-build
+      run: |
+        docker build -t pipeline-test .
+    - name: docker-run
+      env:
+        DJANGO_SECRET_KEY: ${{env.DJANGO_SECRET_KEY}}
+      run: |
+        docker run -p 8000:8000 -e 'DJANGO_SECRET_KEY="$DJANGO_SECRET_KEY"' -d pipeline-test
+    - name: curl-ftw
+      run: |
+        sleep 10
+        curl -f http://localhost:8000/
 
+  sbom-scan-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: get_code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: sbom_gen_and_scan
+        uses: ./.github/actions/sbom-scan
+      - name: upload_sbom
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: project-sbom
+          path: sbom.json
+          compression-level: 0
+
+  terraform-stage1:
+    needs: [build-and-curl,sbom-scan-and-test]
+    runs-on: ubuntu-latest
+    steps:
+    - name: get-code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+    - name: terraform-stage-1
+      uses: ./.github/actions/terraform
+      with:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        STATE_KEY: 'pplozay'
+        TF_STAGE: 'stage1'

@@ -17,9 +17,9 @@ provider "azurerm" {
   features {}
 }
 
-resource "azurerm_container_registry" "pplozay-ACR" {
-  name = "pplozayacmp2400"
-  resource_group_name = "rg-pplozay"
+resource "azurerm_container_registry" "khaiwah-ACR" {
+  name = "khaiwahacmp2400"
+  resource_group_name = "rg-khaiwah"
   location = "Central US"
   sku = "Basic"
   admin_enabled = false

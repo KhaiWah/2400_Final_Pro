@@ -1,1 +1,25 @@
-
+name: 'Terraformer'
+description: 'blarg'
+author: 'b'
+inputs:
+  ARM_CLIENT_ID:
+    description: 'd'
+    required: true
+  ARM_CLIENT_SECRET:
+    description: 'd'
+    required: true
+  ARM_SUBSCRIPTION_ID:
+    description: 'd'
+    required: true
+  ARM_TENANT_ID:
+    description: 'd'
+    required: true
+  STATE_KEY:
+    description: 'd'
+    required: true
+  TF_STAGE:
+    description: 'd'
+    required: true
+runs:
+  using: 'docker'
+  image: 'Dockerfile'

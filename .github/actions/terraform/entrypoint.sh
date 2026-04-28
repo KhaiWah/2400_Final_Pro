@@ -1,3 +1,5 @@
+#!/bin/bash
+
 set -e
 
 export ARM_CLIENT_ID=${INPUT_ARM_CLIENT_ID}
@@ -13,3 +15,6 @@ if [[ "$TF_STAGE" == "stage1" ]]; then
 	terraform -chdir=${INPUT_TF_STAGE} apply ${INPUT_TF_STAGE}.tfplan
 fi
 
+#terraform plan
+
+#terraform --apply-auto-approve

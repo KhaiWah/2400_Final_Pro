@@ -2,8 +2,8 @@ name: Build-Curl
 
 on:
   workflow_dispatch
-permissions: {}
-
+permissions: 
+  contents: read
 jobs:
   build-and-curl:
     runs-on: ubuntu-latest

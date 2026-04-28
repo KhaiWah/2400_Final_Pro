@@ -1,15 +1,15 @@
 name: Build-Curl
-# tells github which repository events should trigger this workflow
+
 on:
   workflow_dispatch
 permissions: {}
-# the code that will run in the cloud
+
 jobs:
   build-and-curl:
     runs-on: ubuntu-latest
     steps:
     - name: get-code
-      # uses tag runs a premade action from github marketplace
+      
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
     - name: docker-build
       run: |

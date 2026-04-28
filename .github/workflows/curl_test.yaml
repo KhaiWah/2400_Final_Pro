@@ -52,6 +52,23 @@ jobs:
         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
         STATE_KEY: 'khaiwah'
         TF_STAGE: 'stage1'
-
+        
+  build-tag-push:
+    needs: terraform-stage1
+    runs-on: ubuntu-latest
+    steps:
+    - name: get_code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+    - name: acr_login
+      uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121
+      with:
+        registry: khaiwahacmp2400.azurecr.io
+        username: ${{ secrets.ARM_CLIENT_ID }}
+        password: ${{ secrets.ARM_CLIENT_SECRET }}
+    - name: docker_build_tag_push
+      run: |
+        docker build -t application-final .
+        docker tag application-final khaiwahacmp2400.azurecr.io/final
+        docker push khaiwahacmp2400.azurecr.io/final
 
 

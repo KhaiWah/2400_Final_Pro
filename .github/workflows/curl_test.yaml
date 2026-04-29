@@ -2,57 +2,64 @@ name: Build-Curl
 
 on:
   workflow_dispatch
+
 permissions: {}
 
 jobs:
   build-and-curl:
     runs-on: ubuntu-latest
     steps:
-    - name: get_code
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-    - name: docker_build
-      run: | 
-        docker build -t pipeline-test .
-    - name: docker_run
-      env:
-        DJANGO_SECRET_KEY: ${{secrets.DJANGO_SECRET_KEY}}
-      run: |
-        docker run -d -p 8000:8000 -e 'DJANGO_SECRET_KEY="$DJANGO_SECRET_KEY"' pipeline-test
-    - name: curl_ftw
-      run: |
-        sleep 10
-        curl -f http://localhost:8000/
-        
+      - name: get-code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: docker-build
+        run: |
+          docker build -t pipeline-test .
+
+      - name: docker-run
+        env:
+          DJANGO_SECRET_KEY: ${{ vars.DJANGO_SECRET_KEY }}
+        run: |
+          docker run -d -p 8000:8000 -e DJANGO_SECRET_KEY="$DJANGO_SECRET_KEY" pipeline-test
+
+      - name: curl-ftw
+        run: |
+          sleep 10
+          curl -f http://localhost:8000/
+
   sbom-scan-and-test:
-   runs-on: ubuntu-latest
-   steps:
-    - name: get_code
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-    - name: sbom_gen_and_scan
-      uses: ./.github/actions/sbom-scan
-    - name: upload_sbom
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-      with:
-        name: project-sbom
-        path: sbom.json
-        compression-level: 0
-        
-  terraform-stage1:
-    needs: [build-and-curl,sbom-scan-and-test]
     runs-on: ubuntu-latest
     steps:
-    - name: get-code
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-    - name: terraform-stage-1
-      uses: ./.github/actions/terraform
-      with:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-        STATE_KEY: 'khaiwah'
-        TF_STAGE: 'stage1'
-        
+      - name: get_code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: sbom_gen_and_scan
+        uses: ./.github/actions/sbom-scan
+
+      - name: upload_sbom
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: project-sbom
+          path: sbom.json
+          compression-level: 0
+
+  terraform-stage1:
+    needs: [build-and-curl, sbom-scan-and-test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: get-code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: terraform-stage-1
+        uses: ./.github/actions/terraform
+        with:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          STATE_KEY: 'khaiwah'
+          TF_STAGE: 'stage1'
+
   build-tag-push:
     needs: terraform-stage1
     runs-on: ubuntu-latest
@@ -70,7 +77,7 @@ jobs:
         docker build -t application-final .
         docker tag application-final khaiwahacmp2400.azurecr.io/final
         docker push khaiwahacmp2400.azurecr.io/final
-        
+
   terraform-stage-2:
     needs: build-tag-push
     runs-on: ubuntu-latest
@@ -87,5 +94,3 @@ jobs:
         STATE_KEY: 'khaiwah'
         TF_STAGE: 'stage2'
         DJANGO_SECRET_KEY_PROD: ${{ secrets.DJANGO_SECRET_KEY_PROD }}
-
-

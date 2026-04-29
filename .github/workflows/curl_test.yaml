@@ -23,7 +23,7 @@ jobs:
         sleep 10
         curl -f http://localhost:8000/
   
-  sbom-scan-and-test:
+sbom-scan-and-test:
    runs-on: ubuntu-latest
    steps:
     - name: get_code
@@ -37,7 +37,7 @@ jobs:
         path: sbom.json
         compression-level: 0
         
-  terraform-stage1:
+terraform-stage1:
     needs: [build-and-curl,sbom-scan-and-test]
     runs-on: ubuntu-latest
     steps:
@@ -53,7 +53,7 @@ jobs:
         STATE_KEY: 'khaiwah'
         TF_STAGE: 'stage1'
         
-  build-tag-push:
+build-tag-push:
     needs: terraform-stage1
     runs-on: ubuntu-latest
     steps:
@@ -71,7 +71,7 @@ jobs:
         docker tag application-final khaiwahacmp2400.azurecr.io/final
         docker push khaiwahacmp2400.azurecr.io/final
 
-   terraform-stage-2:
+terraform-stage-2:
     needs: build-tag-push
     runs-on: ubuntu-latest
     steps:

@@ -109,7 +109,7 @@ jobs:
         curl -f http://$prefix.centralus.azurecontainer.io:8000
 
   terraform-stage-3:
-    needs: terraform-stage-2
+    needs: pre-eval
     runs-on: ubuntu-latest
     steps:
     - name: get-code

@@ -38,7 +38,7 @@ resource "azurerm_container_group" "khaiwah-aci" {
   os_type             = "Linux"
 
   container {
-    name   = "final"
+    name   = "final-app"
     image  = "khaiwahacmp2400.azurecr.io/final:latest"
     cpu    = "0.5"
     memory = "1.5"

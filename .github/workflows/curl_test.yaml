@@ -95,6 +95,19 @@ jobs:
         TF_STAGE: 'stage2'
         DJANGO_SECRET_KEY_PROD: ${{ secrets.DJANGO_SECRET_KEY_PROD }}
 
+  pre-eval:
+    needs: terraform-stage-2
+    runs-on: ubuntu-latest
+    steps:
+    - name: get_code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+    - name: get_container_dns
+      run: |
+        cd stage2/
+        prefix=$(grep 'dns_name_label' main.tf| cut -d '=' -f2 | tr -d '"' | xargs)
+        sleep 50
+        curl -f http://$prefix.centralus.azurecontainer.io:8000
+
   terraform-stage-3:
     needs: terraform-stage-2
     runs-on: ubuntu-latest

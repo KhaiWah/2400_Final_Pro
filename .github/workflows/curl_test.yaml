@@ -20,7 +20,7 @@ jobs:
         env:
           DJANGO_SECRET_KEY: ${{ vars.DJANGO_SECRET_KEY }}
         run: |
-          docker run -d -p 8000:8000 -e DJANGO_SECRET_KEY="$DJANGO_SECRET_KEY" pipeline-test
+          docker run -d -p 8000:8000 -e 'DJANGO_SECRET_KEY="$DJANGO_SECRET_KEY"' pipeline-test
 
       - name: curl-ftw
         run: |
@@ -93,7 +93,7 @@ jobs:
         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
         STATE_KEY: 'khaiwah'
         TF_STAGE: 'stage2'
-        DJANGO_SECRET_KEY_PROD: ${{ secrets.DJANGO_SECRET_KEY_PROD }}
+        DJANGO_SECRET_KEY_PROD: ${{secrets.DJANGO_SECRET_KEY_PROD}}
 
   pre-eval:
     needs: terraform-stage-2

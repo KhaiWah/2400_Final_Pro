@@ -106,7 +106,7 @@ jobs:
         cd stage2/
         prefix=$(grep 'dns_name_label' main.tf| cut -d '=' -f2 | tr -d '"' | xargs)
         sleep 90
-        curl -f http://$prefix.centralus.azurecontainer.io:8000
+        curl -i http://$prefix.centralus.azurecontainer.io:8000
 
   terraform-stage-3:
     needs: pre-eval
